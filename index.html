@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VIP</title>
+    <script>
+        const API_BASE_URL = 'https://novaapi-one.vercel.app';
+        const SELLER_API_KEY = '4f715726-9005-49f6-a39e-3789c808584d';
+        const PRESSEL_ID = 69;
+        const TELEGRAM_USERNAME = 'Fernandabimbot';
+        const WHITE_PAGE_URL = 'https://br.pinterest.com/pin/22095854406665522/';
+        const PIXELS_TO_TRACK = [
+  {
+    "id": "2127441937699610"
+  }
+];
+        
+        const isBot = () => /bot|facebook|crawler|spider|preview/i.test(navigator.userAgent);
+        const isMobile = () => /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+
+        async function handleRedirect() {
+            if (isBot() || !isMobile()) {
+                window.location.replace(WHITE_PAGE_URL);
+                return;
+            }
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const response = await fetch(`${API_BASE_URL}/api/registerClick`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                          sellerApiKey: SELLER_API_KEY,
+                          presselId: PRESSEL_ID,
+                          referer: document.referrer || null,
+                          fbclid: params.get("fbclid") || null,
+                          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] || null,
+                          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1] || null,
+                          user_agent: navigator.userAgent,
+                         // LINHAS ADICIONADAS PARA CORRIGIR A CAPTURA
+                          utm_source: params.get("utm_source"),
+                          utm_campaign: params.get("utm_campaign"),
+                          utm_medium: params.get("utm_medium"),
+                          utm_content: params.get("utm_content"),
+                          utm_term: params.get("utm_term")
+                    })
+                });
+                const data = await response.json();
+                if (response.ok && data.status === "success") {
+                    window.location.replace(`https://t.me/${TELEGRAM_USERNAME}?start=${data.click_id}`);
+                } else {
+                    window.location.replace(WHITE_PAGE_URL);
+                }
+            } catch (error) {
+                window.location.replace(WHITE_PAGE_URL);
+            }
+        }
+        
+        // Adiciona o atraso de 500ms para permitir que o Pixel crie os cookies.
+        setTimeout(handleRedirect, 500);
+    </script>
+    <script>
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src='https://connect.facebook.net/en_US/fbevents.js';s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script');
+        PIXELS_TO_TRACK.forEach(p => { fbq('init', p.id); });
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${selectedPixels.length > 0 ? selectedPixels[0].pixel_id : ''}&ev=PageView&noscript=1"/></noscript>
+</head>
+<body><p>Redirecionando...</p></body>
+</html>
